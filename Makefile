@@ -10,12 +10,14 @@ dropdb:
 	docker exec -it postgres12 dropdb simple_bank
 
 migrateup:
+	# https://github.com/golang-migrate/migrate/tree/master/cmd/migrate
 	migrate --path db/migration -database "postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable" -verbose up
 
 migratedown:
 	migrate --path db/migration -database "postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable" -verbose down
 
 sqlc:
+	# https://docs.sqlc.dev/en/latest/overview/install.html#ubuntu
 	sqlc generate
 
 test:
