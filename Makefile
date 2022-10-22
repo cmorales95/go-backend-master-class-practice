@@ -1,4 +1,4 @@
-.PHONY: createdb dropdb postgres migrateup migratedown server mock
+.PHONY: createdb dropdb postgres migrateup migrateup-last migratedown migratedown-last server mock
 
 postgres:
 	docker run --name postgres12 -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=secret -d postgres:12-alpine
@@ -13,9 +13,14 @@ migrateup:
 	# https://github.com/golang-migrate/migrate/tree/master/cmd/migrate
 	migrate --path db/migration -database "postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable" -verbose up
 
+migrateup-last:
+	migrate --path db/migration -database "postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable" -verbose up 1
+
 migratedown:
 	migrate --path db/migration -database "postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable" -verbose down
 
+migratedown-last:
+	migrate --path db/migration -database "postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable" -verbose down 1
 sqlc:
 	# https://docs.sqlc.dev/en/latest/overview/install.html#ubuntu
 	sqlc generate
