@@ -183,7 +183,7 @@ func TestUser_CreateUser(t *testing.T) {
 			tt.buildStubs(store)
 
 			// start test server and send request
-			server := NewServer(store)
+			server := newTestServer(t, store)
 			recorder := httptest.NewRecorder()
 
 			data, err := json.Marshal(tt.body)
