@@ -33,3 +33,6 @@ server:
 
 mock:
 	mockgen -destination=db/mocks/store.go -package=mocks github.com/cmorales95/go-backend-master-class/db/sqlc Store
+
+random-symmetric-key:
+	openssl rand -hex 64 | head -c 32
