@@ -1,4 +1,6 @@
-.PHONY: createdb dropdb postgres migrateup migrateup-last migratedown migratedown-last server mock
+.PHONY: createdb dropdb postgres migrateup migrateup-last migratedown migratedown-last server mock random-symmetric-key db-docs db-schema
+
+DB_URL = postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable
 
 postgres:
 	docker run --name postgres12 -p 5432:5432 -e POSTGRES_USER=root -e POSTGRES_PASSWORD=secret -d postgres:12-alpine
@@ -9,21 +11,31 @@ createdb:
 dropdb:
 	docker exec -it postgres12 dropdb simple_bank
 
+infra:
+	docker compose up postgres -d
+
+infra-down:
+	docker compose down
+
+create-migration-file:
+	migrate create -ext sql -dir db/migration -seq $(name) # call it using name=
+
 migrateup:
 	# https://github.com/golang-migrate/migrate/tree/master/cmd/migrate
-	migrate --path db/migration -database "postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable" -verbose up
+	migrate --path db/migration -database $(DB_URL) -verbose up
 
 migrateup-last:
-	migrate --path db/migration -database "postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable" -verbose up 1
+	migrate --path db/migration -database $(DB_URL) -verbose up 1
 
 migratedown:
-	migrate --path db/migration -database "postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable" -verbose down
+	migrate --path db/migration -database $(DB_URL) -verbose down
 
 migratedown-last:
-	migrate --path db/migration -database "postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable" -verbose down 1
+	migrate --path db/migration -database $(DB_URL) -verbose down 1
 sqlc:
 	# https://docs.sqlc.dev/en/latest/overview/install.html#ubuntu
 	sqlc generate
+	make mock
 
 test:
 	go test -v -cover ./... -count=1
@@ -36,3 +48,11 @@ mock:
 
 random-symmetric-key:
 	openssl rand -hex 64 | head -c 32
+
+db-docs:
+	# installation: npm install -g dbdocs  | dbdocs login
+	dbdocs build docs/db.dbml
+
+db-schema:
+	# installation: npm install -g @dbml/cli
+	dbml2sql --postgres -o docs/schema.sql docs/db.dbml
