@@ -9,6 +9,15 @@ createdb:
 dropdb:
 	docker exec -it postgres12 dropdb simple_bank
 
+infra:
+	docker compose up postgres -d
+
+infra-down:
+	docker compose down
+
+create-migration-file:
+	migrate create -ext sql -dir db/migration -seq $(name) # call it using name=
+
 migrateup:
 	# https://github.com/golang-migrate/migrate/tree/master/cmd/migrate
 	migrate --path db/migration -database "postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable" -verbose up
@@ -24,6 +33,7 @@ migratedown-last:
 sqlc:
 	# https://docs.sqlc.dev/en/latest/overview/install.html#ubuntu
 	sqlc generate
+	make mock
 
 test:
 	go test -v -cover ./... -count=1
