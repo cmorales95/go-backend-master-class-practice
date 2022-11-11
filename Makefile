@@ -1,4 +1,4 @@
-.PHONY: createdb dropdb postgres migrateup migrateup-last migratedown migratedown-last server mock random-symmetric-key db-docs db-schema
+.PHONY: createdb dropdb postgres migrateup migrateup-last migratedown migratedown-last server mock random-symmetric-key db-docs db-schema proto
 
 DB_URL = postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable
 
@@ -56,3 +56,9 @@ db-docs:
 db-schema:
 	# installation: npm install -g @dbml/cli
 	dbml2sql --postgres -o docs/schema.sql docs/db.dbml
+
+proto:
+	rm -f pb/*.go
+	protoc --proto_path=proto --go_out=pb --go_opt=paths=source_relative \
+    --go-grpc_out=pb --go-grpc_opt=paths=source_relative \
+    proto/*.proto
