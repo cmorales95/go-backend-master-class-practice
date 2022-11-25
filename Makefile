@@ -41,7 +41,7 @@ test:
 	go test -v -cover ./... -count=1
 
 server:
-	go run main.go
+	@go run main.go
 
 mock:
 	mockgen -destination=db/mocks/store.go -package=mocks github.com/cmorales95/go-backend-master-class/db/sqlc Store

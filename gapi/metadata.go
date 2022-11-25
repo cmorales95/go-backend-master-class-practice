@@ -2,7 +2,6 @@ package gapi
 
 import (
 	"context"
-	"fmt"
 
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/peer"
@@ -29,7 +28,6 @@ func (s *Server) extractMetadata(ctx context.Context) Metadata {
 	if !ok {
 		return Metadata{}
 	}
-	fmt.Println(metadataFromContext)
 
 	var data Metadata
 	switch {
