@@ -1,4 +1,4 @@
-.PHONY: createdb dropdb postgres migrateup migrateup-last migratedown migratedown-last server mock random-symmetric-key db-docs db-schema
+.PHONY: createdb dropdb postgres migrateup migrateup-last migratedown migratedown-last server mock random-symmetric-key db-docs db-schema proto evans
 
 DB_URL = postgresql://root:secret@localhost:5432/simple_bank?sslmode=disable
 
@@ -22,7 +22,7 @@ create-migration-file:
 
 migrateup:
 	# https://github.com/golang-migrate/migrate/tree/master/cmd/migrate
-	migrate --path db/migration -database $(DB_URL) -verbose up
+	migrate --path db/migratpon -database $(DB_URL) -verbose up
 
 migrateup-last:
 	migrate --path db/migration -database $(DB_URL) -verbose up 1
@@ -41,7 +41,7 @@ test:
 	go test -v -cover ./... -count=1
 
 server:
-	go run main.go
+	@go run main.go
 
 mock:
 	mockgen -destination=db/mocks/store.go -package=mocks github.com/cmorales95/go-backend-master-class/db/sqlc Store
@@ -56,3 +56,17 @@ db-docs:
 db-schema:
 	# installation: npm install -g @dbml/cli
 	dbml2sql --postgres -o docs/schema.sql docs/db.dbml
+
+proto:
+	@rm -f pb/*.go
+	@rm -f docs/swagger/*.swagger.json
+	@rm -f docs/statik/statik.go
+	@protoc --proto_path=proto --go_out=pb --go_opt=paths=source_relative \
+		--go-grpc_out=pb --go-grpc_opt=paths=source_relative \
+		--grpc-gateway_out=pb --grpc-gateway_opt paths=source_relative \
+		--openapiv2_out=docs/swagger --openapiv2_opt=allow_merge=true,merge_file_name=simple_bank \
+		proto/*.proto
+	@statik -src=./docs/swagger -dest=./docs
+
+evans:
+	evans -r repl
